@@ -1,7 +1,7 @@
 import 'dart:async';
-import 'dart:ui' show lerpDouble;
+
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
+
 import 'notch_shape.dart';
 
 import 'package:mac_notch_ui/mac_notch_ui.dart';
@@ -301,7 +301,7 @@ class _MacNotchWidgetState extends State<MacNotchWidget> with TickerProviderStat
       animation: Listenable.merge([_opacityController, _sizeController]),
       builder: (context, child) {
         final current = _sizeAnimation.value;
-        final currentSize = current.size;
+
         final currentRadius = current.radius;
         
         

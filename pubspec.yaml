@@ -1,10 +1,10 @@
 name: mac_notch_ui
-description: "A new Flutter plugin project."
+description: A Flutter package to create a "Notch" style UI on macOS with smooth animations and hover effects, similar to dynamic islands.
 version: 0.0.1
-homepage:
+repository: https://github.com/ahmeddouss/mac_notch_ui
 
 environment:
-  sdk: ^3.11.0-88.0.dev
+  sdk: '>=3.0.0 <4.0.0'
   flutter: '>=3.3.0'
 
 dependencies:
