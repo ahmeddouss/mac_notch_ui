@@ -1,93 +1,124 @@
-# Mac Notch UI 
+# macOS Notch UI
 
-Bring the **Dynamic Island** experience to macOS with Flutter.
+A Flutter package that brings the native macOS notch experience to your Flutter desktop apps. Create interactive, animated, and customizable notch-style windows that hover at the top of the screen.
 
-A powerful Flutter package that allows you to create a "Notch" style UI on macOS, blending seamlessly with the native aesthetics. Host any Flutter widget inside a dynamic, expanding notch that reacts to hover and user interactions.
+Designed with a focus on **native performance** and **Flutter flexibility**.
 
-<!-- Add a demo GIF here if available, otherwise keep this placeholder comment -->
-<!-- <img src="https://your-demo-url.gif" width="100%" /> -->
+## ✨ Features
 
-## Key Highlights
+- **Native macOS Integration**: Uses native `NSWindow` for a seamless "always-on-top" experience.
+- **Smooth Animations**: Native-driven animations for opening, closing, and resizing with a delightful bounce effect.
+- **Flutter Content**: Render *any* Flutter widget inside the notch.
+- **Hover Detection**: Automatically expands or reacts when the mouse hovers over the notch area.
+- **Dynamic Resizing**: distinct open and closed sizes with smooth interpolation.
+- **Customizable Appearance**:
+  - Adjust width, height, and corner radius.
+  - Configurable blur intensity (Glassmorphism).
+  - Custom background colors and opacity.
+- **Screenshare Privacy**: Option to automatically hide the notch during screen sharing or screenshots.
+- **Multi-Monitor Support**: (Experimental) Works across different screens.
 
-- **Native Aesthetics**: Designed to perfectly match the modern macOS notch look and feel.
-- **Smooth Animations**: Fluid, spring-based animations for opening and closing, just like native macOS interactions.
-- **Service Mode**: Run your app as a background service or status bar tool without a Dock icon.
-- **Flutter Powered**: Render *any* Flutter widget inside the notch—buttons, sliders, text, or complex UIs.
-- **Hover Detection**: Automatically expands when the mouse hovers over the notch area (optional).
-- **Fully Customizable**: Control sizes, border radius, blur intensity, and colors to fit your app's theme.
-
-## Installation
+## 📦 Installation
 
 Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  mac_notch_ui: ^0.0.1
+  mac_notch_ui: ^1.0.0
 ```
 
-## Usage Examples
+## 🚀 Usage
 
-### 1. Initialize & Configure
-Call `enableNotchMode()` in your `main()` or `initState()` to prepare the window.
+The easiest way to use this package is with the `MacNotchWidget`, which handles all the animations and state management for you.
+
+### 1. Initialize the Plugin
+In your `main()` or base widget, enable the notch mode.
 
 ```dart
-void main() {
-  runApp(const MyApp());
-}
+final _macNotchUiPlugin = MacNotchUi();
 
-// Inside your StatefulWidget
 @override
 void initState() {
   super.initState();
-  // Initialize the notch mode
-  MacNotchUi().enableNotchMode();
+  // Initialize transparent window and notch mode
+  _macNotchUiPlugin.enableNotchMode(blurIntensity: 1.0);
 }
 ```
 
-### 2. Implement the Widget
+### 2. Use the Widget
 Wrap your content in `MacNotchWidget`.
 
 ```dart
 MacNotchWidget(
+  isOpen: _isExpanded, // Control state
+  onExpansionChanged: (isOpen) => setState(() => _isExpanded = isOpen),
+  
+  // Customization
   closedSize: const Size(130, 30),
-  openSize: const Size(400, 200),
-  child: Column(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      const Text("Hello from the Notch!", style: TextStyle(color: Colors.white)),
-      ElevatedButton(
-        onPressed: () => print("Clicked!"), 
-        child: const Text("Action")
+  openSize: const Size(500, 300),
+  openRadius: 24,
+  blurIntensity: 0.8,
+  
+  builder: (closeNotch) {
+    return Container(
+      padding: EdgeInsets.all(20),
+      child: Column(
+        children: [
+          Text("My Notch App"),
+          ElevatedButton(
+            onPressed: closeNotch, 
+            child: Text("Close")
+          ),
+        ],
       ),
-    ],
-  ),
+    );
+  },
 )
 ```
 
-### 3. Service Mode (Stealth)
-To make your app feel like a true system extension (no Dock icon, no main window), update your `macos/Runner/Info.plist`:
+## ⚙️ Advanced Configuration
 
-```xml
-<key>LSUIElement</key>
-<true/>
+### Controller API
+You can control the native window directly using the `MacNotchUi` class:
+
+```dart
+// Resize the window directly
+await MacNotchUi().animateWindowSize(500, 400, radius: 20, duration: 0.5);
+
+// Update background blur
+await MacNotchUi().setBlurIntensity(0.5);
+
+// Hide from screenshares
+await MacNotchUi().setScreenshareVisibility(false);
 ```
 
-## License
+### Hover Detection
+Listen to the hover stream to build passive interactions:
 
-MIT License
+```dart
+MacNotchUi().onHoverZone.listen((isHovered) {
+  if (isHovered) {
+    print("Mouse is over the notch!");
+    // Trigger expansion or show a preview
+  }
+});
+```
 
----
+## 🔧 Platform Support
 
-## About the Author
+| Platform | Supported |
+|----------|-----------|
+| macOS    | ✅        |
+| Windows  | ❌        |
+| Linux    | ❌        |
+| Mobile   | ❌        |
 
-Hi, I'm **Ahmed Douss**, a Flutter developer passionate about pushing the boundaries of what's possible on desktop and mobile. I built **Mac Notch UI** to give developers valid, native-feeling tools for creative macOS experiences. 
+*Note: This package relies on macOS-specific windowing APIs (`NSWindow`, `NSVisualEffectView`).*
 
-Feel free to connect on GitHub and share your feedback!
+## ❤️ Contributing
 
----
+Contributions are welcome! If you find a bug or want to feature, please open an issue.
 
-## ☕ Buy Me a Coffee
+## ✍️ Author
 
-If you find this package helpful and want to support its development:
-
-[![Buy Me a Coffee](https://img.shields.io/badge/Revolut-Buy%20me%20a%20coffee-blue?style=for-the-badge&logo=revolut)](https://revolut.me/adouss94)
+Created with passion by **Ahmed Douss**.
