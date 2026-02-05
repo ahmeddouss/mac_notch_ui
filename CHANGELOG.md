@@ -1,3 +1,7 @@
+## 0.0.2
+* Fixed pub.dev analysis issues (license, lints, documentation).
+* Improved API documentation.
+
 ## 0.0.1
 
 * Initial release of the mac_notch_ui package.

@@ -23,10 +23,12 @@ abstract class MacNotchUiPlatform extends PlatformInterface {
     _instance = instance;
   }
 
+  /// Returns the platform version.
   Future<String?> getPlatformVersion() {
     throw UnimplementedError('platformVersion() has not been implemented.');
   }
 
+  /// Enables the notch mode with specified parameters.
   Future<void> enableNotchMode({
     double width = 130, 
     double height = 30, 
@@ -35,22 +37,27 @@ abstract class MacNotchUiPlatform extends PlatformInterface {
     throw UnimplementedError('enableNotchMode() has not been implemented.');
   }
 
+  /// Sets the window size.
   Future<void> setWindowSize(double width, double height, {double radius = 10}) {
     throw UnimplementedError('setWindowSize() has not been implemented.');
   }
 
+  /// Animates the window size.
   Future<void> animateWindowSize(double width, double height, {double radius = 10, double duration = 0.5}) {
     throw UnimplementedError('animateWindowSize() has not been implemented.');
   }
 
+  /// Sets the blur intensity.
   Future<void> setBlurIntensity(double amount) {
     throw UnimplementedError('setBlurIntensity() has not been implemented.');
   }
 
+  /// Sets visibility in screenshares.
   Future<void> setScreenshareVisibility(bool visible) {
     throw UnimplementedError('setScreenshareVisibility() has not been implemented.');
   }
 
+  /// Stream of hover zone events.
   Stream<bool> get onHoverZone {
     throw UnimplementedError('onHoverZone has not been implemented.');
   }

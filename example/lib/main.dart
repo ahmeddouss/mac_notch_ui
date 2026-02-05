@@ -62,11 +62,11 @@ class _MyAppState extends State<MyApp> {
               : Size(_openWidth, _openHeight),
           openRadius: _openRadius,
           blurIntensity: _showBlur ? _blurIntensity : 0.0,
-          color: _isDarkMode ? Colors.black : (_isBlack ? Colors.white.withOpacity(0.12) : Colors.white),
+          color: _isDarkMode ? Colors.black : (_isBlack ? Colors.white.withValues(alpha:0.12) : Colors.white),
           blurOpacity: _isBlack ? 1 : _opacity,
           builder: (close) {
             final textColor = _isDarkMode ? Colors.white : Colors.black;
-            final surfaceColor = _isDarkMode ? Colors.white.withOpacity(0.08) : Colors.black.withOpacity(0.05);
+            final surfaceColor = _isDarkMode ? Colors.white.withValues(alpha:0.08) : Colors.black.withValues(alpha:0.05);
             return Stack(
               children: [
                 // Main Content
@@ -128,7 +128,7 @@ class _MyAppState extends State<MyApp> {
                           decoration: BoxDecoration(
                             color: surfaceColor,
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: textColor.withOpacity(0.1)),
+                            border: Border.all(color: textColor.withValues(alpha:0.1)),
                           ),
                           child: _showAdvanced 
                             ? Column(
@@ -158,7 +158,7 @@ class _MyAppState extends State<MyApp> {
                                     alignment: Alignment.centerLeft,
                                     child: Row(
                                       children: [
-                                        Icon(Icons.apple, color: textColor.withOpacity(0.9), size: 14),
+                                        Icon(Icons.apple, color: textColor.withValues(alpha:0.9), size: 14),
                                         const SizedBox(width: 4),
                                         Text(
                                           'macOS notch',
@@ -185,7 +185,7 @@ class _MyAppState extends State<MyApp> {
         'and control screenshare visibility from Config.\n\n'
         'Created with passion by ',
     style: TextStyle(
-      color: textColor.withOpacity(0.6),
+      color: textColor.withValues(alpha:0.6),
       fontSize: 11,
       fontWeight: FontWeight.w500,
       height: 1.4,
@@ -210,7 +210,7 @@ class _MyAppState extends State<MyApp> {
                       Text(
                         'macOS Notch UI • v1.0.0',
                         style: TextStyle(
-                          color: textColor.withOpacity(0.4),
+                          color: textColor.withValues(alpha:0.4),
                           fontSize: 10,
                           fontWeight: FontWeight.w500,
                         ),
@@ -231,13 +231,13 @@ class _MyAppState extends State<MyApp> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                       decoration: BoxDecoration(
-                        color: textColor.withOpacity(0.08),
+                        color: textColor.withValues(alpha:0.08),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
                         'Close',
                         style: TextStyle(
-                          color: textColor.withOpacity(0.7),
+                          color: textColor.withValues(alpha:0.7),
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
                           letterSpacing: -0.2,
@@ -259,13 +259,13 @@ class _MyAppState extends State<MyApp> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                       decoration: BoxDecoration(
-                        color: textColor.withOpacity(0.08),
+                        color: textColor.withValues(alpha:0.08),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
                         'More',
                         style: TextStyle(
-                          color: textColor.withOpacity(0.7),
+                          color: textColor.withValues(alpha:0.7),
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
                           letterSpacing: -0.2,
@@ -292,10 +292,10 @@ class _MyAppState extends State<MyApp> {
             duration: const Duration(milliseconds: 200),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: isActive ? Colors.blueAccent : textColor.withOpacity(0.08),
+              color: isActive ? Colors.blueAccent : textColor.withValues(alpha:0.08),
               borderRadius: BorderRadius.circular(14),
               border: Border.all(
-                color: isActive ? Colors.blueAccent : textColor.withOpacity(0.05),
+                color: isActive ? Colors.blueAccent : textColor.withValues(alpha:0.05),
               ),
             ),
             child: Icon(
@@ -308,7 +308,7 @@ class _MyAppState extends State<MyApp> {
           Text(
             label, 
             style: TextStyle(
-              color: textColor.withOpacity(0.5), 
+              color: textColor.withValues(alpha:0.5), 
               fontSize: 10, 
               fontWeight: FontWeight.w500,
               letterSpacing: -0.2,
@@ -342,7 +342,7 @@ class _MyAppState extends State<MyApp> {
               child: Text(
                 label,
                 style: TextStyle(
-                  color: textColor.withOpacity(0.8),
+                  color: textColor.withValues(alpha:0.8),
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
                 ),
@@ -356,7 +356,7 @@ class _MyAppState extends State<MyApp> {
                   thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7.0, elevation: 1),
                   overlayShape: const RoundSliderOverlayShape(overlayRadius: 14.0),
                   activeTrackColor: activeColor,
-                  inactiveTrackColor: textColor.withOpacity(0.1),
+                  inactiveTrackColor: textColor.withValues(alpha:0.1),
                   thumbColor: Colors.white,
                 ),
                 child: Slider(
@@ -375,7 +375,7 @@ class _MyAppState extends State<MyApp> {
                 displayValue,
                 textAlign: TextAlign.end,
                 style: TextStyle(
-                  color: textColor.withOpacity(0.6),
+                  color: textColor.withValues(alpha:0.6),
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   fontFamily: 'monospace',
@@ -401,7 +401,7 @@ class _MyAppState extends State<MyApp> {
                child: Text(
                  label, 
                  style: TextStyle(
-                   color: textColor.withOpacity(0.8), 
+                   color: textColor.withValues(alpha:0.8), 
                    fontSize: 13, 
                    fontWeight: FontWeight.w500
                  )
@@ -411,7 +411,7 @@ class _MyAppState extends State<MyApp> {
              CupertinoSwitch(
                value: value, 
                onChanged: onChanged,
-               activeColor: Colors.blueAccent,
+               activeTrackColor: Colors.blueAccent,
              ),
           ],
         ),

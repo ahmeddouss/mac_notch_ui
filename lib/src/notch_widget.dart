@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import 'notch_shape.dart';
+// import 'notch_shape.dart';
 
 import 'package:mac_notch_ui/mac_notch_ui.dart';
 
@@ -21,8 +21,7 @@ class PositionedSize {
 }
 
 class PositionedSizeTween extends Tween<PositionedSize> {
-  PositionedSizeTween({PositionedSize? begin, PositionedSize? end})
-      : super(begin: begin, end: end);
+  PositionedSizeTween({super.begin, super.end});
 
   @override
   PositionedSize lerp(double t) => PositionedSize.lerp(begin!, end!, t);
@@ -35,19 +34,44 @@ double? lerpDouble(num? a, num? b, double t) {
   return a + (b - a) * t;
 }
 
+/// A widget that simulates the macOS notch UI.
+///
+/// This widget handles the animation and rendering of the notch.
+/// It works in conjunction with the [MacNotchUi] plugin to synchronize
+/// the native window size and position.
 class MacNotchWidget extends StatefulWidget {
+  /// Builder function for the content of the notch when open.
+  ///
+  /// The [close] callback can be called to close the notch programmatically.
   final Widget Function(VoidCallback close)? builder;
+
+  /// Child widget to display in the notch.
+  ///
+  /// Used if [builder] is not provided.
   final Widget? child;
+  /// The size of the notch when closed. Defaults to `Size(130, 30)`.
   final Size closedSize;
+
+  /// The size of the notch when open. Defaults to `Size(400, 200)`.
   final Size openSize;
+
+  /// The border radius when closed. Defaults to `10`.
   final double closedRadius;
+
+  /// The border radius when open. Defaults to `24`.
   final double openRadius;
+
+  /// The background color of the notch. Defaults to slightly transparent black.
   final Color color;
+
+  /// The intensity of the blur effect. Defaults to `1.0`.
   final double blurIntensity;
+
+  /// The opacity of the blur effect. Defaults to `1.0`.
   final double blurOpacity;
 
   const MacNotchWidget({
-    Key? key,
+    super.key,
     this.builder,
     this.child,
     this.closedSize = const Size(130, 30),
@@ -57,11 +81,19 @@ class MacNotchWidget extends StatefulWidget {
     this.color = const Color(0x73000000), // Colors.black45 roughly
     this.blurIntensity = 1.0,
     this.blurOpacity = 1.0,
-    this.isOpen,
-    this.onExpansionChanged,
-  }) : super(key: key);
+  /// Whether the notch is currently open.
+  ///
+  /// If provided, this widget becomes a controlled component.
+  this.isOpen,
 
+  /// Callback when the expansion state changes.
+  this.onExpansionChanged,
+  });
+
+  /// Whether the notch is currently open.
   final bool? isOpen;
+
+  /// Callback when the expansion state changes.
   final ValueChanged<bool>? onExpansionChanged;
 
   @override
@@ -293,8 +325,8 @@ class _MacNotchWidgetState extends State<MacNotchWidget> with TickerProviderStat
     // If user provides opacity, apply it to the color's alpha or override it?
     // User requested "prop for opacity". 
     // We will multiply the provided color's opacity by blurOpacity.
-    final effectiveColor = widget.color.withOpacity(
-        (widget.color.opacity * widget.blurOpacity).clamp(0.0, 1.0)
+    final effectiveColor = widget.color.withValues(
+      alpha: (widget.color.a * widget.blurOpacity).clamp(0.0, 1.0),
     );
 
     return AnimatedBuilder(
