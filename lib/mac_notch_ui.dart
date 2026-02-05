@@ -24,6 +24,10 @@ class MacNotchUi {
     return MacNotchUiPlatform.instance.setWindowSize(width, height, radius: radius);
   }
 
+  Future<void> animateWindowSize(double width, double height, {double radius = 10.0, double duration = 0.5}) {
+    return MacNotchUiPlatform.instance.animateWindowSize(width, height, radius: radius, duration: duration);
+  }
+
   Future<void> setBlurIntensity(double amount) {
     return MacNotchUiPlatform.instance.setBlurIntensity(amount);
   }

@@ -1,9 +1,39 @@
 import 'dart:async';
+import 'dart:ui' show lerpDouble;
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'notch_shape.dart';
 
 import 'package:mac_notch_ui/mac_notch_ui.dart';
+
+class PositionedSize {
+  final Size size;
+  final double radius;
+
+  PositionedSize(this.size, this.radius);
+
+  static PositionedSize lerp(PositionedSize a, PositionedSize b, double t) {
+    return PositionedSize(
+      Size.lerp(a.size, b.size, t)!,
+      lerpDouble(a.radius, b.radius, t)!,
+    );
+  }
+}
+
+class PositionedSizeTween extends Tween<PositionedSize> {
+  PositionedSizeTween({PositionedSize? begin, PositionedSize? end})
+      : super(begin: begin, end: end);
+
+  @override
+  PositionedSize lerp(double t) => PositionedSize.lerp(begin!, end!, t);
+}
+
+double? lerpDouble(num? a, num? b, double t) {
+  if (a == null && b == null) return null;
+  a ??= 0.0;
+  b ??= 0.0;
+  return a + (b - a) * t;
+}
 
 class MacNotchWidget extends StatefulWidget {
   final Widget Function(VoidCallback close)? builder;
@@ -27,33 +57,62 @@ class MacNotchWidget extends StatefulWidget {
     this.color = const Color(0x73000000), // Colors.black45 roughly
     this.blurIntensity = 1.0,
     this.blurOpacity = 1.0,
+    this.isOpen,
+    this.onExpansionChanged,
   }) : super(key: key);
+
+  final bool? isOpen;
+  final ValueChanged<bool>? onExpansionChanged;
 
   @override
   State<MacNotchWidget> createState() => _MacNotchWidgetState();
 }
 
-class _MacNotchWidgetState extends State<MacNotchWidget> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _animation;
-  late Animation<Size> _sizeAnimation;
-  late Animation<double> _radiusAnimation;
+class _MacNotchWidgetState extends State<MacNotchWidget> with TickerProviderStateMixin {
+  late AnimationController _opacityController;
+  late AnimationController _sizeController;
+  late Animation<double> _opacityAnimation;
+  late Animation<PositionedSize> _sizeAnimation;
   
   bool _isOpen = false;
+  bool _useBounce = true; // Use bounce for open/close, smooth for slider adjustments
   StreamSubscription<bool>? _hoverSubscription;
+
+  Size _startSize = const Size(130, 30);
+  Size _targetSize = const Size(130, 30);
+  double _startRadius = 10;
+  double _targetRadius = 10;
+  PositionedSize? _lastSentSize;
+  bool _drivingNativeAnimation = false;
 
   @override
   void initState() {
     super.initState();
     
-    _controller = AnimationController(
+    _opacityController = AnimationController(
         vsync: this, 
-        duration: const Duration(milliseconds: 600),
+        duration: const Duration(milliseconds: 500),
+    );
+
+    _sizeController = AnimationController(
+        vsync: this,
+        duration: const Duration(milliseconds: 500),
     );
     
+    _startSize = widget.closedSize;
+    _targetSize = widget.isOpen == true ? widget.openSize : widget.closedSize;
+    _startRadius = widget.closedRadius;
+    _targetRadius = widget.isOpen == true ? widget.openRadius : widget.closedRadius;
+
     _updateAnimations();
 
-    _controller.addListener(_onAnimationTick);
+    _sizeController.addListener(_onAnimationTick);
+    
+    if (widget.isOpen == true) {
+      _isOpen = true;
+      _opacityController.value = 1.0;
+      _sizeController.value = 1.0;
+    }
     
     _listenToHoverZone();
   }
@@ -62,31 +121,30 @@ class _MacNotchWidgetState extends State<MacNotchWidget> with SingleTickerProvid
   void didUpdateWidget(MacNotchWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
     
-    // Animate if size/radius target changed
-    if (oldWidget.closedSize != widget.closedSize || 
-        oldWidget.openSize != widget.openSize ||
-        oldWidget.closedRadius != widget.closedRadius ||
-        oldWidget.openRadius != widget.openRadius) {
-      _updateAnimations();
+    // Animate if size/radius target changed while in that state
+    bool sizeChanged = oldWidget.closedSize != widget.closedSize || 
+                       oldWidget.openSize != widget.openSize;
+    bool radiusChanged = oldWidget.closedRadius != widget.closedRadius || 
+                         oldWidget.openRadius != widget.openRadius;
 
-      // IF we are currently idle (not animating), we might need to snap the native window 
-      // to the new size immediately.
-      if (!_controller.isAnimating) {
-        if (_isOpen) {
-             // If open and openSize changed, update strictly to openSize
-            MacNotchUi().setWindowSize(
-                widget.openSize.width, 
-                widget.openSize.height,
-                radius: widget.openRadius
-            );
-        } else {
-            // If closed and closedSize changed, update strictly to closedSize
-            MacNotchUi().setWindowSize(
-                widget.closedSize.width, 
-                widget.closedSize.height,
-                radius: widget.closedRadius
-            );
-        }
+    if (sizeChanged || radiusChanged) {
+      _drivingNativeAnimation = false; // Take back control for parameter updates
+      _startSize = _sizeAnimation.value.size;
+      _targetSize = _isOpen ? widget.openSize : widget.closedSize;
+      _startRadius = _sizeAnimation.value.radius;
+      _targetRadius = _isOpen ? widget.openRadius : widget.closedRadius;
+      
+      _useBounce = true; // Use bounce for these transitions
+      _updateAnimations();
+      _sizeController.forward(from: 0);
+    }
+    
+    // Handle external isOpen change
+    if (widget.isOpen != null && widget.isOpen != oldWidget.isOpen) {
+      if (widget.isOpen!) {
+        _expand(notify: false);
+      } else {
+        _close(notify: false);
       }
     }
     
@@ -96,63 +154,136 @@ class _MacNotchWidgetState extends State<MacNotchWidget> with SingleTickerProvid
     }
   }
 
+  void _expand({bool notify = true}) {
+    if (!_isOpen) {
+      if (notify) {
+        widget.onExpansionChanged?.call(true);
+      }
+      setState(() {
+        _isOpen = true;
+        _useBounce = true;
+        _drivingNativeAnimation = true; // Let Native handle the driver seat
+        
+        _startSize = _sizeAnimation.value.size;
+        _targetSize = widget.openSize;
+        _startRadius = _sizeAnimation.value.radius;
+        _targetRadius = widget.openRadius;
+        
+        _updateAnimations();
+        _sizeController.forward(from: 0);
+        _opacityController.forward();
+        
+        // Trigger Native Animation
+        MacNotchUi().animateWindowSize(
+            widget.openSize.width, 
+            widget.openSize.height,
+            radius: widget.openRadius,
+            duration: 0.5
+        );
+        
+        // Return control after animation
+        Future.delayed(const Duration(milliseconds: 500), () {
+            if (mounted && _isOpen) _drivingNativeAnimation = false;
+        });
+      });
+    }
+  }
+
+  Future<void> _close({bool notify = true}) async {
+    if (_isOpen) {
+      if (notify) {
+        widget.onExpansionChanged?.call(false);
+      }
+      
+      // 1. Hide content first
+      await _opacityController.animateTo(0, duration: const Duration(milliseconds: 200), curve: Curves.easeOut);
+      
+      if (!mounted) return;
+
+      // 2. Then resize notch
+      setState(() {
+        _isOpen = false;
+        _useBounce = true; 
+        _drivingNativeAnimation = true; // Let Native handle the driver seat
+        
+        _startSize = _sizeAnimation.value.size;
+        _targetSize = widget.closedSize;
+        _startRadius = _sizeAnimation.value.radius;
+        _targetRadius = widget.closedRadius;
+
+        _updateAnimations();
+        _sizeController.forward(from: 0);
+        
+        // Trigger Native Animation
+        MacNotchUi().animateWindowSize(
+            widget.closedSize.width, 
+            widget.closedSize.height,
+            radius: widget.closedRadius,
+            duration: 0.5
+        );
+        
+        // Return control after animation
+        Future.delayed(const Duration(milliseconds: 500), () {
+             if (mounted && !_isOpen) _drivingNativeAnimation = false;
+        });
+      });
+    }
+  }
+
   void _updateAnimations() {
-      // Curve for Size/Radius (can overshoot)
-      final movementCurve = CurvedAnimation(parent: _controller, curve: Curves.easeOutBack);
+      // Use easeOutQuart to match Native Switch implementation
+      final curve = _useBounce ? Curves.easeOutQuart : Curves.easeOut;
+      final movementCurve = CurvedAnimation(parent: _sizeController, curve: curve);
       
-      _sizeAnimation = Tween<Size>(
-          begin: widget.closedSize, 
-          end: widget.openSize
+      _sizeAnimation = PositionedSizeTween(
+        begin: PositionedSize(_startSize, _startRadius),
+        end: PositionedSize(_targetSize, _targetRadius),
       ).animate(movementCurve);
       
-      _radiusAnimation = Tween<double>(
-          begin: widget.closedRadius, 
-          end: widget.openRadius
-      ).animate(movementCurve);
-      
-      // Curve for Opacity (Strictly 0.0 -> 1.0)
-      _animation = CurvedAnimation(
-        parent: _controller,
-        curve: const Interval(0.0, 1.0, curve: Curves.easeOut),
+      _opacityAnimation = CurvedAnimation(
+        parent: _opacityController,
+        curve: Curves.easeOut,
       );
   }
 
   void _onAnimationTick() {
-      // Sync Native Window Size and Radius
-      MacNotchUi().setWindowSize(
-          _sizeAnimation.value.width, 
-          _sizeAnimation.value.height,
-          radius: _radiusAnimation.value
-      );
+    // We keep this purely to drive internal state/radius updates in sync with native.
+    // Native window update calls are REMOVED to prevent channel lag.
+    if (!mounted) return;
+    
+    // Only send window size updates if NOT driven by native animation (e.g. slider updates)
+    if (!_drivingNativeAnimation) {
+        final current = _sizeAnimation.value;
+        
+        // Optimization: Avoid sending duplicate frames to native side
+        if (_lastSentSize != null && 
+            _lastSentSize!.size == current.size && 
+            _lastSentSize!.radius == current.radius) {
+          return;
+        }
+        _lastSentSize = current;
+        
+        MacNotchUi().setWindowSize(
+            current.size.width, 
+            current.size.height,
+            radius: current.radius
+        );
+    }
   }
 
   void _listenToHoverZone() {
     _hoverSubscription = MacNotchUi().onHoverZone.listen((inZone) {
       if (inZone && !_isOpen) {
-        // Expand
-        // We do NOT call enableNotchMode here anymore to avoid visual flickering.
-        // setWindowSize is sufficient as long as mode was enabled once.
-        setState(() {
-          _isOpen = true;
-          _controller.forward();
-        });
+        _expand();
       }
     });
-  }
-
-  void _close() {
-    if (_isOpen) {
-      setState(() {
-        _isOpen = false;
-        _controller.reverse();
-      });
-    }
   }
 
   @override
   void dispose() {
     _hoverSubscription?.cancel();
-    _controller.dispose();
+    _opacityController.dispose();
+    _sizeController.dispose();
     super.dispose();
   }
 
@@ -167,10 +298,11 @@ class _MacNotchWidgetState extends State<MacNotchWidget> with SingleTickerProvid
     );
 
     return AnimatedBuilder(
-      animation: _controller,
+      animation: Listenable.merge([_opacityController, _sizeController]),
       builder: (context, child) {
-        final currentSize = _sizeAnimation.value;
-        final currentRadius = _radiusAnimation.value;
+        final current = _sizeAnimation.value;
+        final currentSize = current.size;
+        final currentRadius = current.radius;
         
         
         return Align(
@@ -188,19 +320,15 @@ class _MacNotchWidgetState extends State<MacNotchWidget> with SingleTickerProvid
               clipper: NotchClipper(bottomCornerRadius: currentRadius),
               child: Container(
                 color: effectiveColor,
-                alignment: Alignment.center,
-                child: Opacity(
-                  opacity: _animation.value, // Fade in content
-                  child: OverflowBox(
-                      minWidth: widget.openSize.width, 
-                      maxWidth: widget.openSize.width,
-                      minHeight: widget.openSize.height,
-                      maxHeight: widget.openSize.height,
+                alignment: Alignment.topCenter,
+                  child: ClipRect(
+                    child: Opacity(
+                      opacity: _opacityAnimation.value, // Fade in content
                       child: widget.builder != null 
                           ? widget.builder!(_close)
-                          : widget.child
+                          : widget.child,
+                    ),
                   ),
-                ),
               ),
             ),
           ),

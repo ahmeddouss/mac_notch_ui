@@ -39,6 +39,10 @@ abstract class MacNotchUiPlatform extends PlatformInterface {
     throw UnimplementedError('setWindowSize() has not been implemented.');
   }
 
+  Future<void> animateWindowSize(double width, double height, {double radius = 10, double duration = 0.5}) {
+    throw UnimplementedError('animateWindowSize() has not been implemented.');
+  }
+
   Future<void> setBlurIntensity(double amount) {
     throw UnimplementedError('setBlurIntensity() has not been implemented.');
   }

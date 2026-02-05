@@ -44,6 +44,16 @@ class MethodChannelMacNotchUi extends MacNotchUiPlatform {
   }
 
   @override
+  Future<void> animateWindowSize(double width, double height, {double radius = 10, double duration = 0.5}) async {
+    await methodChannel.invokeMethod<void>('animateWindow', {
+      'width': width,
+      'height': height,
+      'radius': radius,
+      'duration': duration,
+    });
+  }
+
+  @override
   Future<void> setBlurIntensity(double amount) async {
     await methodChannel.invokeMethod<void>('setBlurIntensity', amount);
   }

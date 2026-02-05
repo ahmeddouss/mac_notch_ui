@@ -81,9 +81,87 @@ public class MacNotchUiPlugin: NSObject, FlutterPlugin {
              }
         }
         result(nil)
+    case "animateWindow":
+        guard let args = call.arguments as? [String: Any],
+              let targetWidth = args["width"] as? Double,
+              let targetHeight = args["height"] as? Double,
+              let duration = args["duration"] as? Double else { // Duration in seconds
+            result(FlutterError(code: "INVALID_ARGUMENTS", message: "Arguments missing", details: nil))
+            return
+        }
+        let targetRadius = args["radius"] as? Double ?? 10.0
+        
+        self.animateWindow(toWidth: targetWidth, toHeight: targetHeight, toRadius: targetRadius, duration: duration)
+        result(nil)
     default:
       result(FlutterMethodNotImplemented)
     }
+  }
+
+  // Animation State
+  private var animationTimer: Timer?
+  private var animStartTime: TimeInterval = 0
+  private var animDuration: TimeInterval = 0
+  
+  private var startWidth: Double = 0
+  private var startHeight: Double = 0
+  private var startRadius: Double = 0
+  
+  private var targetWidth: Double = 0
+  private var targetHeight: Double = 0
+  private var targetRadius: Double = 0
+
+  private func animateWindow(toWidth: Double, toHeight: Double, toRadius: Double, duration: Double) {
+      DispatchQueue.main.async {
+          // Cancel existing
+          self.animationTimer?.invalidate()
+          
+          guard let window = self.window ?? NSApp.windows.first else { return }
+          let currentFrame = window.frame
+          
+          self.startWidth = currentFrame.width
+          self.startHeight = currentFrame.height
+          self.startRadius = self.lastRadius // Use last known radius as start
+          
+          self.targetWidth = toWidth
+          self.targetHeight = toHeight
+          self.targetRadius = toRadius
+          
+          self.animDuration = duration
+          self.animStartTime = Date().timeIntervalSince1970
+          
+          // 60 FPS
+          self.animationTimer = Timer.scheduledTimer(withTimeInterval: 0.016, repeats: true) { [weak self] timer in
+              self?.onAnimationTick()
+          }
+      }
+  }
+  
+  private func onAnimationTick() {
+      let now = Date().timeIntervalSince1970
+      let elapsed = now - animStartTime
+      
+      if elapsed >= animDuration {
+          // Finish
+          animationTimer?.invalidate()
+          animationTimer = nil
+          setWindowSize(width: targetWidth, height: targetHeight, radius: targetRadius)
+          return
+      }
+      
+      let t = elapsed / animDuration
+      // EaseOutBack-ish or just EaseOut? Let's use EaseOut for safety first, or replicate Dart's curve.
+      // Simple EaseOut: 1 - (1-t)^2
+      // let curveValue = 1 - pow(1 - t, 2)
+      
+      // Let's use EaseOutQuart for a nice smooth stop: 1 - (1-t)^4
+      let curveValue = 1 - pow(1 - t, 4)
+      
+      let currentWidth = startWidth + (targetWidth - startWidth) * curveValue
+      let currentHeight = startHeight + (targetHeight - startHeight) * curveValue
+      let currentRadius = startRadius + (targetRadius - startRadius) * curveValue
+      
+      setWindowSize(width: currentWidth, height: currentHeight, radius: currentRadius)
   }
 
   private func startMouseMonitor() {
@@ -114,11 +192,17 @@ public class MacNotchUiPlugin: NSObject, FlutterPlugin {
 
   private func enableNotchMode(width: Double, height: Double, blurIntensity: Double) {
       DispatchQueue.main.async {
-          // Use the registered window or fallback to the first window
+      // Use the registered window or fallback to the first window
           guard let targetWindow = self.window ?? NSApp.windows.first else { return }
           
-          // Apply Notch-like window settings
-          targetWindow.styleMask = [.borderless, .nonactivatingPanel, .utilityWindow, .hudWindow, .fullSizeContentView]
+          // Apply Notch-like window settings based on window type
+          var styleMask: NSWindow.StyleMask = [.borderless, .fullSizeContentView]
+          
+          if targetWindow is NSPanel {
+              styleMask.insert([.nonactivatingPanel, .utilityWindow, .hudWindow])
+          }
+          
+          targetWindow.styleMask = styleMask
           
           // Make transparent
           targetWindow.isOpaque = false
@@ -203,7 +287,7 @@ public class MacNotchUiPlugin: NSObject, FlutterPlugin {
           let newFrame = NSRect(x: newOriginX, y: newOriginY, width: width, height: height)
           
           // Update Window Frame
-          targetWindow.setFrame(newFrame, display: true, animate: false)
+          targetWindow.setFrame(newFrame, display: false, animate: false)
           
           // Update Visual Effect View Frame
           if let blurView = self.visualEffectView {
