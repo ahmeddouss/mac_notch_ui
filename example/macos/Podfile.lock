@@ -1,0 +1,22 @@
+PODS:
+  - FlutterMacOS (1.0.0)
+  - mac_notch_ui (0.0.1):
+    - FlutterMacOS
+
+DEPENDENCIES:
+  - FlutterMacOS (from `Flutter/ephemeral`)
+  - mac_notch_ui (from `Flutter/ephemeral/.symlinks/plugins/mac_notch_ui/macos`)
+
+EXTERNAL SOURCES:
+  FlutterMacOS:
+    :path: Flutter/ephemeral
+  mac_notch_ui:
+    :path: Flutter/ephemeral/.symlinks/plugins/mac_notch_ui/macos
+
+SPEC CHECKSUMS:
+  FlutterMacOS: d0db08ddef1a9af05a5ec4b724367152bb0500b1
+  mac_notch_ui: 26ebbe370b06fe090e8b1a982a16282732a0e05b
+
+PODFILE CHECKSUM: 54d867c82ac51cbd61b565781b9fada492027009
+
+COCOAPODS: 1.16.2
