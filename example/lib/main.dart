@@ -19,7 +19,7 @@ class _MyAppState extends State<MyApp> {
   double _opacity = 0.45;
   Color _baseColor = Colors.black;
   double _openWidth = 430.0;
-  double _openHeight = 400.0; // Adjusted for a cleaner initial look
+  double _openHeight = 450.0; // Adjusted for a cleaner initial look
   double _openRadius = 24.0;
   
   // New Toggles
@@ -133,20 +133,21 @@ class _MyAppState extends State<MyApp> {
                           child: _showAdvanced 
                             ? Column(
                                 children: [
+                                  _buildSwitchRow('Screenshare Visible', _showInScreenshare, (v) {
+                                    setState(() => _showInScreenshare = v);
+                                    _macNotchUiPlugin.setScreenshareVisibility(v);
+                                  }),
+                                  const SizedBox(height: 10),
                                   _buildSliderRow('Blur', _blurIntensity, 0, 1, Colors.purpleAccent, (v) => setState(() => _blurIntensity = v), _blurIntensity.toStringAsFixed(1)),
-                                  const SizedBox(height: 10),
-                                  _buildSliderRow('Opac', _opacity, 0, 1, Colors.blueAccent, (v) => setState(() => _opacity = v), _opacity.toStringAsFixed(1)),
-                                  const SizedBox(height: 10),
-                                  _buildSliderRow('Radius', _openRadius, 0, 50, Colors.cyanAccent, (v) => setState(() => _openRadius = v), '${_openRadius.round()}px'),
                                   const SizedBox(height: 10),
                                   _buildSliderRow('Width', _openWidth, 200, 600, Colors.greenAccent, (v) => setState(() => _openWidth = v), '${_openWidth.round()}px'),
                                   const SizedBox(height: 10),
                                   _buildSliderRow('Height', _openHeight, 100, 500, Colors.orangeAccent, (v) => setState(() => _openHeight = v), '${_openHeight.round()}px'),
                                   const SizedBox(height: 10),
-                                  _buildSwitchRow('Screenshare Visible', _showInScreenshare, (v) {
-                                    setState(() => _showInScreenshare = v);
-                                    _macNotchUiPlugin.setScreenshareVisibility(v);
-                                  }),
+                                  _buildSliderRow('Opac', _opacity, 0, 1, Colors.blueAccent, (v) => setState(() => _opacity = v), _opacity.toStringAsFixed(1)),
+                                  const SizedBox(height: 10),
+                                  _buildSliderRow('Radius', _openRadius, 0, 50, Colors.cyanAccent, (v) => setState(() => _openRadius = v), '${_openRadius.round()}px'),
+                            
                                 ],
                               )
                             : Column(
@@ -160,7 +161,7 @@ class _MyAppState extends State<MyApp> {
                                         Icon(Icons.apple, color: textColor.withOpacity(0.9), size: 14),
                                         const SizedBox(width: 4),
                                         Text(
-                                          'Control Center',
+                                          'macOS notch',
                                           style: TextStyle(
                                             color: textColor,
                                             fontWeight: FontWeight.w700,
@@ -172,17 +173,32 @@ class _MyAppState extends State<MyApp> {
                                     ),
                                   ),
                                   const SizedBox(height: 8),
-                                  Text(
-                                    'Customise your macOS notch experience with precision. Adjust blur intensity, layer opacity, corner radius, and dimensions in real-time to match your desktop aesthetic. Created with passion by Ahmed Douss.',
-                                    style: TextStyle(
-                                      color: textColor.withOpacity(0.6),
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w500,
-                                      height: 1.4,
-                                    ),
-                                    maxLines: 3,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
+                                  Text.rich(
+  TextSpan(
+    text:
+        'Turn your macOS notch into a smart, always-available space:\n\n'
+        '- Smart assistant always accessible on screen\n'
+        '- Quick laptop settings & controls\n'
+        '- Status widgets (audio, system, shortcuts)\n'
+        '- Contextual tools without leaving your workflow\n\n'
+        'Fine-tune blur, opacity, radius & dimensions,\n'
+        'and control screenshare visibility from Config.\n\n'
+        'Created with passion by ',
+    style: TextStyle(
+      color: textColor.withOpacity(0.6),
+      fontSize: 11,
+      fontWeight: FontWeight.w500,
+      height: 1.4,
+    ),
+    children: const [
+      TextSpan(
+        text: 'Ahmed Douss',
+        style: TextStyle(fontWeight: FontWeight.w700),
+      ),
+      TextSpan(text: '.'),
+    ],
+  ),
+)
                                 ],
                               ),
                         ),
