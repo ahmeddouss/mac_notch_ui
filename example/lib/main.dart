@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:mac_notch_ui/mac_notch_ui.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 void main() {
   runApp(const MyApp());
@@ -254,7 +255,9 @@ class _MyAppState extends State<MyApp> {
                   child: GestureDetector(
                     onTap: () {
                       // Open link logic
-                      print("Opening more info link: https://github.com/notch-ui");
+                      launchUrl(Uri.parse("https://pub.dev/packages/ai_glow"));
+                      setState(() => _isExpanded = false);
+                      close();
                     },
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
