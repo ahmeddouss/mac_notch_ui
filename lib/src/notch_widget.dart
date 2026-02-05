@@ -231,8 +231,8 @@ class _MacNotchWidgetState extends State<MacNotchWidget> with TickerProviderStat
   }
 
   void _updateAnimations() {
-      // Use easeOutQuart to match Native Switch implementation
-      final curve = _useBounce ? Curves.easeOutQuart : Curves.easeOut;
+      // Use easeOutBack to match Native implementation (which now uses EaseOutBack)
+      final curve = _useBounce ? Curves.easeOutBack : Curves.easeOut;
       final movementCurve = CurvedAnimation(parent: _sizeController, curve: curve);
       
       _sizeAnimation = PositionedSizeTween(

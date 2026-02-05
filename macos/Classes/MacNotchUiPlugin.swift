@@ -150,16 +150,17 @@ public class MacNotchUiPlugin: NSObject, FlutterPlugin {
       }
       
       let t = elapsed / animDuration
-      // EaseOutBack-ish or just EaseOut? Let's use EaseOut for safety first, or replicate Dart's curve.
-      // Simple EaseOut: 1 - (1-t)^2
-      // let curveValue = 1 - pow(1 - t, 2)
       
-      // Let's use EaseOutQuart for a nice smooth stop: 1 - (1-t)^4
-      let curveValue = 1 - pow(1 - t, 4)
+      // Use EaseOutBack to match the "bounce" effect requested by user
+      let c1 = 1.70158
+      let c3 = c1 + 1
+      let term = t - 1
       
-      let currentWidth = startWidth + (targetWidth - startWidth) * curveValue
-      let currentHeight = startHeight + (targetHeight - startHeight) * curveValue
-      let currentRadius = startRadius + (targetRadius - startRadius) * curveValue
+      let curveValue = 1 + c3 * pow(term, 3) + c1 * pow(term, 2)
+      
+      let currentWidth = max(1.0, startWidth + (targetWidth - startWidth) * curveValue)
+      let currentHeight = max(1.0, startHeight + (targetHeight - startHeight) * curveValue)
+      let currentRadius = max(0.0, startRadius + (targetRadius - startRadius) * curveValue)
       
       setWindowSize(width: currentWidth, height: currentHeight, radius: currentRadius)
   }
