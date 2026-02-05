@@ -32,6 +32,10 @@ class MacNotchUi {
     return MacNotchUiPlatform.instance.setBlurIntensity(amount);
   }
 
+  Future<void> setScreenshareVisibility(bool visible) {
+    return MacNotchUiPlatform.instance.setScreenshareVisibility(visible);
+  }
+
   Stream<bool> get onHoverZone {
     return MacNotchUiPlatform.instance.onHoverZone;
   }

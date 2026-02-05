@@ -58,6 +58,11 @@ class MethodChannelMacNotchUi extends MacNotchUiPlatform {
     await methodChannel.invokeMethod<void>('setBlurIntensity', amount);
   }
 
+  @override
+  Future<void> setScreenshareVisibility(bool visible) async {
+    await methodChannel.invokeMethod<void>('setScreenshareVisibility', visible);
+  }
+
   // Bridging the method channel events to a stream
   final _hoverController = StreamController<bool>.broadcast();
 

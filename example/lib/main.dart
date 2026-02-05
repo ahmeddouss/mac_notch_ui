@@ -29,6 +29,7 @@ class _MyAppState extends State<MyApp> {
   bool _isBlack = true;
   bool _isDarkMode = true;
   bool _showAdvanced = false;
+  bool _showInScreenshare = true;
 
   final double _closedNotchWidth = 130.0;
   final double _closedNotchHeight = 30.0;
@@ -42,6 +43,7 @@ class _MyAppState extends State<MyApp> {
   Future<void> _initNotch() async {
     // Initialize the window mode to be transparent, full screen, and waiting for notch events
     await _macNotchUiPlugin.enableNotchMode(blurIntensity: _blurIntensity);
+    await _macNotchUiPlugin.setScreenshareVisibility(_showInScreenshare);
   }
 
   @override
@@ -140,6 +142,11 @@ class _MyAppState extends State<MyApp> {
                                   _buildSliderRow('Width', _openWidth, 200, 600, Colors.greenAccent, (v) => setState(() => _openWidth = v), '${_openWidth.round()}px'),
                                   const SizedBox(height: 10),
                                   _buildSliderRow('Height', _openHeight, 100, 500, Colors.orangeAccent, (v) => setState(() => _openHeight = v), '${_openHeight.round()}px'),
+                                  const SizedBox(height: 10),
+                                  _buildSwitchRow('Screenshare Visible', _showInScreenshare, (v) {
+                                    setState(() => _showInScreenshare = v);
+                                    _macNotchUiPlugin.setScreenshareVisibility(v);
+                                  }),
                                 ],
                               )
                             : Column(
@@ -359,6 +366,37 @@ class _MyAppState extends State<MyApp> {
                 ),
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSwitchRow(String label, bool value, ValueChanged<bool> onChanged) {
+    final textColor = _isDarkMode ? Colors.white : Colors.black;
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: SizedBox(
+        width: 360,
+        child: Row(
+          children: [
+             SizedBox(
+               width: 150,
+               child: Text(
+                 label, 
+                 style: TextStyle(
+                   color: textColor.withOpacity(0.8), 
+                   fontSize: 13, 
+                   fontWeight: FontWeight.w500
+                 )
+               ),
+             ),
+             const Spacer(),
+             CupertinoSwitch(
+               value: value, 
+               onChanged: onChanged,
+               activeColor: Colors.blueAccent,
+             ),
           ],
         ),
       ),

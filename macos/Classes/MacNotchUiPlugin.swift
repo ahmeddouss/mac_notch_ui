@@ -93,6 +93,13 @@ public class MacNotchUiPlugin: NSObject, FlutterPlugin {
         
         self.animateWindow(toWidth: targetWidth, toHeight: targetHeight, toRadius: targetRadius, duration: duration)
         result(nil)
+    case "setScreenshareVisibility":
+        guard let visible = call.arguments as? Bool else {
+             result(FlutterError(code: "INVALID_ARGUMENTS", message: "Visible boolean required", details: nil))
+             return
+        }
+        self.setScreenshareVisibility(visible: visible)
+        result(nil)
     default:
       result(FlutterMethodNotImplemented)
     }
@@ -366,6 +373,17 @@ public class MacNotchUiPlugin: NSObject, FlutterPlugin {
         } else {
             // Fallback
              shapeLayer.path = path
+        }
+    }
+
+    private func setScreenshareVisibility(visible: Bool) {
+        if #available(macOS 12.0, *) {
+            DispatchQueue.main.async {
+                guard let window = self.window ?? NSApp.windows.first else { return }
+                // .none means hidden from capture
+                // .readOnly means visible in capture (default behavior)
+                window.sharingType = visible ? .readOnly : .none
+            }
         }
     }
 }

@@ -47,6 +47,10 @@ abstract class MacNotchUiPlatform extends PlatformInterface {
     throw UnimplementedError('setBlurIntensity() has not been implemented.');
   }
 
+  Future<void> setScreenshareVisibility(bool visible) {
+    throw UnimplementedError('setScreenshareVisibility() has not been implemented.');
+  }
+
   Stream<bool> get onHoverZone {
     throw UnimplementedError('onHoverZone has not been implemented.');
   }
