@@ -18,7 +18,7 @@ class _MyAppState extends State<MyApp> {
   final _macNotchUiPlugin = MacNotchUi();
   double _blurIntensity = 1.0;
   double _opacity = 0.45;
-  Color _baseColor = Colors.black;
+
   double _openWidth = 430.0;
   double _openHeight = 450.0; // Adjusted for a cleaner initial look
   double _openRadius = 24.0;
@@ -57,7 +57,7 @@ class _MyAppState extends State<MyApp> {
         body: MacNotchWidget(
           isOpen: _isExpanded,
           onExpansionChanged: (v) => setState(() => _isExpanded = v),
-          closedSize: const Size(130, 30),
+          closedSize: Size(_closedNotchWidth, _closedNotchHeight),
           openSize: _isBigger 
               ? Size(_openWidth + 100, _openHeight + 150) 
               : Size(_openWidth, _openHeight),

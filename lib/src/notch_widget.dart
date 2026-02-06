@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-// import 'notch_shape.dart';
+
 
 import 'package:mac_notch_ui/mac_notch_ui.dart';
 

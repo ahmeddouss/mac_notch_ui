@@ -29,6 +29,10 @@ abstract class MacNotchUiPlatform extends PlatformInterface {
   }
 
   /// Enables the notch mode with specified parameters.
+  ///
+  /// * [width]: The initial width.
+  /// * [height]: The initial height.
+  /// * [blurIntensity]: The blur intensity (0.0 to 1.0).
   Future<void> enableNotchMode({
     double width = 130, 
     double height = 30, 
@@ -38,26 +42,41 @@ abstract class MacNotchUiPlatform extends PlatformInterface {
   }
 
   /// Sets the window size.
+  ///
+  /// * [width]: The target width.
+  /// * [height]: The target height.
+  /// * [radius]: The target radius.
   Future<void> setWindowSize(double width, double height, {double radius = 10}) {
     throw UnimplementedError('setWindowSize() has not been implemented.');
   }
 
   /// Animates the window size.
+  ///
+  /// * [width]: The target width.
+  /// * [height]: The target height.
+  /// * [radius]: The target radius.
+  /// * [duration]: Animation duration in seconds.
   Future<void> animateWindowSize(double width, double height, {double radius = 10, double duration = 0.5}) {
     throw UnimplementedError('animateWindowSize() has not been implemented.');
   }
 
   /// Sets the blur intensity.
+  ///
+  /// * [amount]: The intensity value (0.0 to 1.0).
   Future<void> setBlurIntensity(double amount) {
     throw UnimplementedError('setBlurIntensity() has not been implemented.');
   }
 
   /// Sets visibility in screenshares.
+  ///
+  /// * [visible]: Whether the window should be visible in captures.
   Future<void> setScreenshareVisibility(bool visible) {
     throw UnimplementedError('setScreenshareVisibility() has not been implemented.');
   }
 
   /// Stream of hover zone events.
+  ///
+  /// Emits `true` when entering the zone, `false` when leaving.
   Stream<bool> get onHoverZone {
     throw UnimplementedError('onHoverZone has not been implemented.');
   }
