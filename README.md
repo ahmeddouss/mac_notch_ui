@@ -124,3 +124,12 @@ Contributions are welcome! If you find a bug or want to feature, please open an 
 ## ✍️ Author
 
 Created with passion by **Ahmed Douss**.
+
+
+---
+
+## ☕ Buy Me a Coffee
+
+If you find this package helpful, consider supporting my work:
+
+[![Buy Me a Coffee](https://revolut.me/adouss94)](https://revolut.me/adouss94)
