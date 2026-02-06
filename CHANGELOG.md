@@ -14,3 +14,7 @@
 ## 0.0.3
 
 * Added more info button to open pub.dev page.
+
+## 0.0.5
+
+* Fixed pub.dev analysis issues (license, lints, documentation).
