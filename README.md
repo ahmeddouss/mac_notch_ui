@@ -1,8 +1,9 @@
-# macOS Notch UI
+![notch_3 (1) (1)](https://github.com/user-attachments/assets/104d22d5-e8d0-478c-8453-9e657bf24bc5)# macOS Notch UI
 
 A Flutter package that brings the native macOS notch experience to your Flutter desktop apps. Create interactive, animated, and customizable notch-style windows that hover at the top of the screen.
 
 Designed with a focus on **native performance** and **Flutter flexibility**.
+![notch_3 (1) (1)](https://github.com/user-attachments/assets/fafd6ddc-0547-4527-9251-0e483aa6f1ba)
 
 ## ✨ Features
 
